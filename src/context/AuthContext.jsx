@@ -42,15 +42,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const refresh = localStorage.getItem("refresh");
-    if (refresh) {
-      await api.post("logout/", { refresh });
+    try {
+      const refresh = localStorage.getItem("refresh");
+      if (refresh) {
+        await api.post("logout/", { refresh });
+      }
+    } catch {
+      //token already expired or invalid - still log out
+    } finally {
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      localStorage.removeItem("user");
+      setUser(null);
+      navigate("/login");
     }
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate("/login");
   };
 
   return (

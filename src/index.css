@@ -7,7 +7,7 @@
   --font-sans: "Geist", Arial, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
-  /* colors */
+  /* colors — these are fine, no conflict */
   --color-ink: #171717;
   --color-body: #4d4d4d;
   --color-mute: #8f8f8f;
@@ -22,25 +22,25 @@
   --color-violet: #7928ca;
   --color-cyan: #50e3c2;
 
-  /* border radius */
+  /* border radius — fine, no conflict */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 100px;
 
-  /* spacing (base 4px) */
-  --spacing-xxs: 4px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 40px;
-  --spacing-3xl: 64px;
-  --spacing-4xl: 96px;
+  /* ✅ prefixed with "ds-" so they don't touch Tailwind's --spacing-* scale */
+  --ds-space-xxs: 4px;
+  --ds-space-xs: 8px;
+  --ds-space-sm: 12px;
+  --ds-space-md: 16px;
+  --ds-space-lg: 24px;
+  --ds-space-xl: 32px;
+  --ds-space-2xl: 40px;
+  --ds-space-3xl: 64px;
+  --ds-space-4xl: 96px;
 }
 
-/* ── Base styles ── */
+/* Base styles */
 body {
   background-color: #fafafa;
   font-family: "Geist", Arial, sans-serif;
@@ -52,7 +52,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* typography scale from design file */
 h1,
 h2,
 h3,
