@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Clock, Calendar, User, Ticket } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&q=80";
@@ -33,11 +33,16 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`/api/events/${id}/`)
-      .then((res) => setEvent(res.data))
+    api
+      .get(`events/${id}/`)
+      .then((res) => {
+        console.log(res.data);
+        setEvent(res.data);
+      })
       .finally(() => setLoading(false));
   }, [id]);
+
+  // console.log(event.value);
 
   if (loading)
     return <div className="p-8 text-center text-gray-400">Loading...</div>;
@@ -57,7 +62,7 @@ export default function EventDetailPage() {
       {/* Back */}
       <button
         onClick={() => navigate("/events")}
-        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 mb-5 transition-colors"
+        className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 mb-5 transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" /> Back to events
       </button>

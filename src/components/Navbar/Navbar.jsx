@@ -4,13 +4,8 @@ import { Plus, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   return (
     <nav className="flex items-center justify-between h-13 px-6 bg-[#fafafa] border-b border-[#ebebeb]">
@@ -86,7 +81,7 @@ export default function Navbar() {
 
           {/* Create event */}
           <button
-            onClick={() => navigate("/events/create")}
+            onClick={() => navigate("/events/new")}
             className="flex items-center gap-1.5 text-sm font-medium text-white bg-[#171717] border-none rounded-md px-3 h-8 cursor-pointer hover:bg-[#333] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Create event
@@ -94,7 +89,7 @@ export default function Navbar() {
 
           {/* Avatar */}
           <button
-            onClick={handleLogout}
+            onClick={() => navigate("/dashboard")}
             className="w-7 h-7 rounded-full bg-[#171717] flex items-center justify-center text-white text-[11px] font-semibold cursor-pointer border-none"
             title="Log out"
           >

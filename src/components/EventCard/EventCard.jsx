@@ -28,7 +28,7 @@ function EventCard({ event }) {
   const endTime = formatTime(event.end_datetime);
 
   return (
-    <div className="w-80 bg-white border border-gray-100 rounded-2xl overflow-hidden mb-2">
+    <div className="w-full bg-white border border-gray-100 rounded-2xl overflow-hidden">
       {/* Image */}
       <div className="relative h-44">
         <img
