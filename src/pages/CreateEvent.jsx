@@ -14,10 +14,14 @@ export default function CreateEvent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    event_type: "physical",
     location: "",
+    meeting_url: "",
+    meeting_platform: "",
     start_datetime: "",
     end_datetime: "",
     capacity: "",
+    waitlist_capacity: "",
     is_published: true,
   });
   const [image, setImage] = useState(null); // File object
@@ -86,6 +90,10 @@ export default function CreateEvent() {
     payload.append("title", form.title.trim());
     payload.append("description", form.description.trim());
     payload.append("location", form.location.trim());
+    payload.append("event_type", form.event_type.trim());
+    payload.append("meeting_url", form.meeting_url.trim());
+    payload.append("meeting_platform", form.meeting_platform.trim());
+    payload.append("waitlist_capacity", form.waitlist_capacity.trim());
     payload.append(
       "start_datetime",
       new Date(form.start_datetime).toISOString(),
@@ -191,20 +199,55 @@ export default function CreateEvent() {
         </div>
 
         {/* Text fields */}
-        {[
-          { field: "title", placeholder: "Event title", type: "text" },
-          { field: "location", placeholder: "Location", type: "text" },
-        ].map(({ field, placeholder, type }) => (
-          <input
-            key={field}
-            type={type}
-            placeholder={placeholder}
-            value={form[field]}
-            onChange={(e) => handleChange(field, e.target.value)}
-            className="w-full h-10 rounded-lg border border-[#ebebeb] px-3 text-sm text-[#171717] placeholder:text-[#a1a1a1] bg-white focus:outline-none focus:ring-1 focus:ring-black/20"
-          />
-        ))}
 
+        <input
+          key="title"
+          type="text"
+          placeholder="Event title"
+          value={form["title"]}
+          onChange={(e) => handleChange("title", e.target.value)}
+          className="w-full h-10 rounded-lg border border-[#ebebeb] px-3 text-sm text-[#171717] placeholder:text-[#a1a1a1] bg-white focus:outline-none focus:ring-1 focus:ring-black/20"
+        />
+
+        <select
+          value={form.event_type}
+          onChange={(e) => handleChange("event_type", e.target.value)}
+          className="w-full h-10 rounded-lg border border-hairline px-3"
+        >
+          <option value="physical">Physical</option>
+          <option value="online">Online</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+
+        {(form.event_type === "hybrid" || form.event_type === "physical") && (
+          <input
+            type="text"
+            placeholder="Location"
+            value={form.location}
+            onChange={(e) => handleChange("location", e.target.value)}
+            className="w-full h-10 rounded-lg border border-hairline px-3"
+          />
+        )}
+
+        {(form.event_type === "online" || form.event_type === "hybrid") && (
+          <input
+            type="text"
+            placeholder="Meeting URL"
+            value={form.meeting_url}
+            onChange={(e) => handleChange("meeting_url", e.target.value)}
+            className="w-full h-10 rounded-lg border border-[#ebebeb] px-3"
+          />
+        )}
+
+        {(form.event_type === "online" || form.event_type === "hybrid") && (
+          <input
+            type="text"
+            placeholder="Meeting Platform"
+            value={form.meeting_platform}
+            onChange={(e) => handleChange("meeting_platform", e.target.value)}
+            className="w-full h-10 rounded-lg border border-hairline px-3"
+          />
+        )}
         <textarea
           rows={4}
           placeholder="Description"
@@ -248,6 +291,14 @@ export default function CreateEvent() {
           className="w-full h-10 rounded-lg border border-[#ebebeb] px-3 text-sm text-[#171717] placeholder:text-[#a1a1a1] bg-white focus:outline-none focus:ring-1 focus:ring-black/20"
         />
 
+        <input
+          type="number"
+          min="1"
+          placeholder="Waitlist Capacity"
+          value={form.waitlist_capacity}
+          onChange={(e) => handleChange("waitlist_capacity", e.target.value)}
+          className="w-full h-10 rounded-lg border border-[#ebebeb] px-3 text-sm text-[#171717] placeholder:text-[#a1a1a1] bg-white focus:outline-none focus:ring-1 focus:ring-black/20"
+        />
         <label className="flex items-center gap-2.5 text-sm text-[#4d4d4d] cursor-pointer">
           <input
             type="checkbox"
@@ -270,7 +321,7 @@ export default function CreateEvent() {
                 <Upload className="w-3.5 h-3.5 animate-bounce" /> Saving...
               </>
             ) : (
-              "Save event"
+              "Create event"
             )}
           </button>
           <button

@@ -90,7 +90,7 @@ function EventCard({ event }) {
             </span>
           )}
           <button
-            className="bg-black text-white text-sm font-medium px-4 h-8 rounded-full flex items-center gap-1.5 hover:bg-gray-800 transition-colors"
+            className="bg-black text-white text-sm font-medium px-4 h-8 rounded-full flex items-center gap-1.5 hover:bg-gray-800 transition-colors cursor-pointer"
             onClick={() => navigate(`/events/${event.id}`)}
           >
             View Details <ArrowRight className="w-3.5 h-3.5" />
