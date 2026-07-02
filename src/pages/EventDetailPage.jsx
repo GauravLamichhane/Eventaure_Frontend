@@ -49,6 +49,20 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (loading) {
+      document.title = "Event Details | Eventaure";
+      return;
+    }
+
+    if (!event) {
+      document.title = "Event Not Found | Eventaure";
+      return;
+    }
+
+    document.title = `${event.title} | Eventaure`;
+  }, [event, loading]);
+
+  useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
