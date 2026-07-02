@@ -35,11 +35,6 @@ function formatTime(datetimeStr) {
   });
 }
 
-function normalizeId(value) {
-  if (value === null || value === undefined) return null;
-  return String(value);
-}
-
 export default function EventDetailPage() {
   const { getProfile, user } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -73,6 +68,7 @@ export default function EventDetailPage() {
           try {
             const profileData = await getProfile();
             setProfile(profileData);
+            // console.log(profileData);
           } catch {
             setProfile(null);
           }
@@ -91,16 +87,12 @@ export default function EventDetailPage() {
   }, [id, getProfile, user]);
 
   const isLoggedIn = Boolean(user);
-  const profileId = normalizeId(
-    profile?.id ?? profile?.user?.id ?? profile?.user_id,
-  );
-  const organizerId = normalizeId(
-    event?.organizer_id ?? event?.organizer?.id ?? event?.organizer,
-  );
-  const isOrganizer = Boolean(
-    profileId && organizerId && profileId === organizerId,
-  );
-  // console.log(event.value);
+  // console.log(isLoggedIn);
+
+  const isOrganizer = profile?.id === event?.organizer;
+  // console.log(profile?.id);
+  // console.log(event?.organizer);
+  // console.log(isOrganizer);
 
   if (loading)
     return <div className="p-8 text-center text-gray-400">Loading...</div>;
@@ -147,6 +139,13 @@ export default function EventDetailPage() {
           </span>
         )}
       </div>
+      {/* <div>
+        {event.event_type == "Online" ? (
+          <h1>Meeting URL is required</h1>
+        ) : (
+          <h1>Not Required</h1>
+        )}
+      </div> */}
 
       {/* Title */}
       <h1 className="text-2xl font-semibold tracking-tight text-gray-900 mb-1">
@@ -211,11 +210,11 @@ export default function EventDetailPage() {
       </div>
 
       {/* CTAs */}
-      <div className="border border-[#ebebeb] rounded-2xl p-5">
+      <div className="border border-hairline rounded-2xl p-5">
         {isOrganizer ? (
           // Organizer view
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[#8f8f8f] text-center mb-1">
+            <p className="text-xs text-mute text-center mb-1">
               You're the organizer of this event
             </p>
             <button
