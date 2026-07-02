@@ -9,6 +9,8 @@ import {
   User,
   Ticket,
   Pencil,
+  Link,
+  Video,
 } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -35,9 +37,10 @@ function formatTime(datetimeStr) {
   });
 }
 
-function normalizeId(value) {
-  if (value === null || value === undefined) return null;
-  return String(value);
+function getMeetingHref(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
 }
 
 export default function EventDetailPage() {
@@ -47,6 +50,20 @@ export default function EventDetailPage() {
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (loading) {
+      document.title = "Event Details | Eventaure";
+      return;
+    }
+
+    if (!event) {
+      document.title = "Event Not Found | Eventaure";
+      return;
+    }
+
+    document.title = `${event.title} | Eventaure`;
+  }, [event, loading]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -59,6 +76,7 @@ export default function EventDetailPage() {
           try {
             const profileData = await getProfile();
             setProfile(profileData);
+            // console.log(profileData);
           } catch {
             setProfile(null);
           }
@@ -77,16 +95,12 @@ export default function EventDetailPage() {
   }, [id, getProfile, user]);
 
   const isLoggedIn = Boolean(user);
-  const profileId = normalizeId(
-    profile?.id ?? profile?.user?.id ?? profile?.user_id,
-  );
-  const organizerId = normalizeId(
-    event?.organizer_id ?? event?.organizer?.id ?? event?.organizer,
-  );
-  const isOrganizer = Boolean(
-    profileId && organizerId && profileId === organizerId,
-  );
-  // console.log(event.value);
+  // console.log(isLoggedIn);
+
+  const isOrganizer = profile?.id === event?.organizer;
+  // console.log(profile?.id);
+  // console.log(event?.organizer);
+  // console.log(isOrganizer);
 
   if (loading)
     return <div className="p-8 text-center text-gray-400">Loading...</div>;
@@ -100,6 +114,7 @@ export default function EventDetailPage() {
   const startTime = formatTime(event.start_datetime);
   const endTime = formatTime(event.end_datetime);
   const date = formatDate(event.start_datetime);
+  // console.log(event);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -133,6 +148,13 @@ export default function EventDetailPage() {
           </span>
         )}
       </div>
+      {/* <div>
+        {event.event_type == "Online" ? (
+          <h1>Meeting URL is required</h1>
+        ) : (
+          <h1>Not Required</h1>
+        )}
+      </div> */}
 
       {/* Title */}
       <h1 className="text-2xl font-semibold tracking-tight text-gray-900 mb-1">
@@ -168,7 +190,6 @@ export default function EventDetailPage() {
         {[
           { icon: Calendar, label: "Date", value: date },
           { icon: Clock, label: "Time", value: `${startTime} – ${endTime}` },
-          { icon: MapPin, label: "Location", value: event.location },
           {
             icon: User,
             label: "Organizer",
@@ -184,6 +205,60 @@ export default function EventDetailPage() {
             <span className="text-sm font-medium text-gray-800">{value}</span>
           </div>
         ))}
+
+        <div>
+          {(event.event_type === "physical" ||
+            event.event_type === "hybrid") && (
+            <div
+              key="Location"
+              className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0"
+            >
+              <MapPin className="w-4 h-4 text-gray-300 shrink-0" />
+              <span className="text-xs text-gray-400 w-20 shrink-0">
+                Location
+              </span>
+              <span className="text-sm font-medium text-gray-800">
+                {event.location}
+              </span>
+            </div>
+          )}
+
+          {(event.event_type === "online" || event.event_type === "hybrid") && (
+            <div>
+              <div
+                key="url"
+                className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0"
+              >
+                <Link className="w-4 h-4 text-gray-300 shrink-0" />
+                <span className="text-xs text-gray-400 w-20 shrink-0">URL</span>
+                {event.meeting_url ? (
+                  <a
+                    href={getMeetingHref(event.meeting_url)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm font-medium text-blue-600 hover:underline break-all"
+                  >
+                    {event.meeting_url}
+                  </a>
+                ) : (
+                  <span className="text-sm font-medium text-gray-800">N/A</span>
+                )}
+              </div>
+              <div
+                key="Meeting Platform"
+                className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0"
+              >
+                <Video className="w-4 h-4 text-gray-300 shrink-0" />
+                <span className="text-xs text-gray-400 w-20 shrink-0">
+                  Platform
+                </span>
+                <a className="text-sm font-medium text-gray-800">
+                  {event.meeting_platform}
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* About — hardcoded long description fallback */}
@@ -197,11 +272,11 @@ export default function EventDetailPage() {
       </div>
 
       {/* CTAs */}
-      <div className="border border-[#ebebeb] rounded-2xl p-5">
+      <div className="border border-hairline rounded-2xl p-5">
         {isOrganizer ? (
           // Organizer view
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-[#8f8f8f] text-center mb-1">
+            <p className="text-xs text-mute text-center mb-1">
               You're the organizer of this event
             </p>
             <button
