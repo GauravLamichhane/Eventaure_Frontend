@@ -9,6 +9,8 @@ import {
   User,
   Ticket,
   Pencil,
+  Link,
+  Video,
 } from "lucide-react";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -33,6 +35,12 @@ function formatTime(datetimeStr) {
     minute: "2-digit",
     hour12: true,
   });
+}
+
+function getMeetingHref(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
 }
 
 export default function EventDetailPage() {
@@ -106,6 +114,7 @@ export default function EventDetailPage() {
   const startTime = formatTime(event.start_datetime);
   const endTime = formatTime(event.end_datetime);
   const date = formatDate(event.start_datetime);
+  // console.log(event);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -181,7 +190,6 @@ export default function EventDetailPage() {
         {[
           { icon: Calendar, label: "Date", value: date },
           { icon: Clock, label: "Time", value: `${startTime} – ${endTime}` },
-          { icon: MapPin, label: "Location", value: event.location },
           {
             icon: User,
             label: "Organizer",
@@ -197,6 +205,60 @@ export default function EventDetailPage() {
             <span className="text-sm font-medium text-gray-800">{value}</span>
           </div>
         ))}
+
+        <div>
+          {(event.event_type === "physical" ||
+            event.event_type === "hybrid") && (
+            <div
+              key="Location"
+              className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0"
+            >
+              <MapPin className="w-4 h-4 text-gray-300 shrink-0" />
+              <span className="text-xs text-gray-400 w-20 shrink-0">
+                Location
+              </span>
+              <span className="text-sm font-medium text-gray-800">
+                {event.location}
+              </span>
+            </div>
+          )}
+
+          {(event.event_type === "online" || event.event_type === "hybrid") && (
+            <div>
+              <div
+                key="url"
+                className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0"
+              >
+                <Link className="w-4 h-4 text-gray-300 shrink-0" />
+                <span className="text-xs text-gray-400 w-20 shrink-0">URL</span>
+                {event.meeting_url ? (
+                  <a
+                    href={getMeetingHref(event.meeting_url)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm font-medium text-blue-600 hover:underline break-all"
+                  >
+                    {event.meeting_url}
+                  </a>
+                ) : (
+                  <span className="text-sm font-medium text-gray-800">N/A</span>
+                )}
+              </div>
+              <div
+                key="Meeting Platform"
+                className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0"
+              >
+                <Video className="w-4 h-4 text-gray-300 shrink-0" />
+                <span className="text-xs text-gray-400 w-20 shrink-0">
+                  Platform
+                </span>
+                <a className="text-sm font-medium text-gray-800">
+                  {event.meeting_platform}
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* About — hardcoded long description fallback */}
