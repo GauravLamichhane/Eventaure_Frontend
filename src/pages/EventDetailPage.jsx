@@ -1,8 +1,17 @@
 // src/pages/EventDetailPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Clock, Calendar, User, Ticket } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Clock,
+  Calendar,
+  User,
+  Ticket,
+  Pencil,
+} from "lucide-react";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&q=80";
@@ -26,22 +35,57 @@ function formatTime(datetimeStr) {
   });
 }
 
+function normalizeId(value) {
+  if (value === null || value === undefined) return null;
+  return String(value);
+}
+
 export default function EventDetailPage() {
+  const { getProfile, user } = useAuth();
+  const [profile, setProfile] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api
-      .get(`events/${id}/`)
-      .then((res) => {
-        console.log(res.data);
-        setEvent(res.data);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const eventRes = await api.get(`events/${id}/`);
+        setEvent(eventRes.data);
 
+        if (user) {
+          try {
+            const profileData = await getProfile();
+            setProfile(profileData);
+          } catch {
+            setProfile(null);
+          }
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        console.log(err);
+        setEvent(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [id, getProfile, user]);
+
+  const isLoggedIn = Boolean(user);
+  const profileId = normalizeId(
+    profile?.id ?? profile?.user?.id ?? profile?.user_id,
+  );
+  const organizerId = normalizeId(
+    event?.organizer_id ?? event?.organizer?.id ?? event?.organizer,
+  );
+  const isOrganizer = Boolean(
+    profileId && organizerId && profileId === organizerId,
+  );
   // console.log(event.value);
 
   if (loading)
@@ -153,13 +197,50 @@ export default function EventDetailPage() {
       </div>
 
       {/* CTAs */}
-      <div className="border border-gray-100 rounded-2xl p-5">
-        <button className="w-full bg-black text-white rounded-full h-11 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
-          <Ticket className="w-4 h-4" /> Register for this event
-        </button>
-        <button className="w-full mt-3 border border-gray-200 rounded-full h-11 text-[15px] font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-          Join waitlist
-        </button>
+      <div className="border border-[#ebebeb] rounded-2xl p-5">
+        {isOrganizer ? (
+          // Organizer view
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-[#8f8f8f] text-center mb-1">
+              You're the organizer of this event
+            </p>
+            <button
+              onClick={() => navigate(`/events/${event.id}/edit`)}
+              className="w-full bg-[#171717] text-white rounded-full h-11 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-[#333] transition-colors"
+            >
+              <Pencil className="w-4 h-4" /> Edit event
+            </button>
+            <button
+              onClick={() => navigate(`/dashboard`)}
+              className="w-full border border-[#ebebeb] rounded-full h-11 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors"
+            >
+              View in dashboard
+            </button>
+          </div>
+        ) : isLoggedIn ? (
+          // Attendee view
+          <>
+            <button className="w-full bg-black text-white rounded-full h-11 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+              <Ticket className="w-4 h-4" /> Register for this event
+            </button>
+            <button className="w-full mt-3 border border-[#ebebeb] rounded-full h-11 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors">
+              Join waitlist
+            </button>
+          </>
+        ) : (
+          // Guest view
+          <div className="text-center">
+            <p className="text-sm text-[#8f8f8f] mb-3">
+              Sign in to register for this event or join the waitlist.
+            </p>
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full bg-[#171717] text-white rounded-full h-11 text-[15px] font-medium hover:bg-[#333] transition-colors"
+            >
+              Sign in
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
