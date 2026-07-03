@@ -13,7 +13,7 @@ import {
   Video,
 } from "lucide-react";
 import api from "../api/axios";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&q=80";
@@ -275,42 +275,42 @@ export default function EventDetailPage() {
       <div className="border border-hairline rounded-2xl p-5">
         {isOrganizer ? (
           // Organizer view
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 items-center">
             <p className="text-xs text-mute text-center mb-1">
               You're the organizer of this event
             </p>
             <button
               onClick={() => navigate(`/events/${event.id}/edit`)}
-              className="w-full bg-[#171717] text-white rounded-full h-11 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-[#333] transition-colors"
+              className="w-full sm:w-auto sm:min-w-[220px] bg-[#171717] text-white rounded-full h-11 px-6 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-[#333] transition-colors cursor-pointer"
             >
               <Pencil className="w-4 h-4" /> Edit event
             </button>
             <button
               onClick={() => navigate(`/dashboard`)}
-              className="w-full border border-[#ebebeb] rounded-full h-11 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors"
+              className="w-full sm:w-auto sm:min-w-[220px] border border-[#ebebeb] rounded-full h-11 px-6 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors cursor-pointer"
             >
               View in dashboard
             </button>
           </div>
         ) : isLoggedIn ? (
           // Attendee view
-          <>
-            <button className="w-full bg-black text-white rounded-full h-11 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+          <div className="flex flex-col items-center">
+            <button className="w-full sm:w-auto sm:min-w-[220px] bg-black text-white rounded-full h-11 px-6 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors cursor-pointer">
               <Ticket className="w-4 h-4" /> Register for this event
             </button>
-            <button className="w-full mt-3 border border-[#ebebeb] rounded-full h-11 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors">
+            <button className="w-full sm:w-auto sm:min-w-[220px] mt-3 border border-[#ebebeb] rounded-full h-11 px-6 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors cursor-pointer">
               Join waitlist
             </button>
-          </>
+          </div>
         ) : (
           // Guest view
-          <div className="text-center">
+          <div className="text-center flex flex-col items-center">
             <p className="text-sm text-[#8f8f8f] mb-3">
               Sign in to register for this event or join the waitlist.
             </p>
             <button
               onClick={() => navigate("/login")}
-              className="w-full bg-[#171717] text-white rounded-full h-11 text-[15px] font-medium hover:bg-[#333] transition-colors"
+              className="w-full sm:w-auto sm:min-w-[220px] bg-[#171717] text-white rounded-full h-11 px-6 text-[15px] font-medium hover:bg-[#333] transition-colors"
             >
               Sign in
             </button>
