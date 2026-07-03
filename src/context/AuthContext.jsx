@@ -1,10 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-
-const AuthContext = createContext();
-
-const useAuth = () => useContext(AuthContext);
+import { AuthContext } from "./useAuth";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => localStorage.getItem("user") || null);
@@ -64,5 +61,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export { useAuth };

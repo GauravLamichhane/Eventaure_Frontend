@@ -26,7 +26,7 @@ export default function Home() {
 
         const res = await api.get("events/", { params });
         setEvents(res.data.results ?? res.data);
-      } catch (err) {
+      } catch {
         setError("Couldn't load events. Try refreshing.");
       } finally {
         setLoading(false);

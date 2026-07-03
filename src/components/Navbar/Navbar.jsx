@@ -1,7 +1,7 @@
 // src/components/Navbar.jsx
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Plus, Bell } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -14,7 +14,7 @@ export default function Navbar() {
         <div className="w-7 h-7 bg-[#171717] rounded-md flex items-center justify-center shrink-0">
           <span className="text-white text-[13px] font-semibold font-mono">
             E
-          </span>
+          </span> 
         </div>
         <span className="text-[15px] font-semibold text-[#171717] tracking-tight">
           eventaure
