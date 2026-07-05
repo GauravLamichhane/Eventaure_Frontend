@@ -295,7 +295,10 @@ export default function EventDetailPage() {
         ) : isLoggedIn ? (
           // Attendee view
           <div className="flex flex-col items-center">
-            <button className="w-full sm:w-auto sm:min-w-[220px] bg-black text-white rounded-full h-11 px-6 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors cursor-pointer">
+            <button
+              onClick={() => navigate(`/registrations/`)}
+              className="w-full sm:w-auto sm:min-w-[220px] bg-black text-white rounded-full h-11 px-6 text-[15px] font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors cursor-pointer"
+            >
               <Ticket className="w-4 h-4" /> Register for this event
             </button>
             <button className="w-full sm:w-auto sm:min-w-[220px] mt-3 border border-[#ebebeb] rounded-full h-11 px-6 text-[15px] font-medium text-[#4d4d4d] hover:bg-[#fafafa] transition-colors cursor-pointer">
