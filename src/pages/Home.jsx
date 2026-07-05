@@ -7,9 +7,15 @@ import EventCard from "../components/EventCard/EventCard";
 
 const FILTERS = ["All", "Physical", "Online", "Hybrid"];
 const TIME_FILTERS = ["Any time", "This week", "This month"];
+const PAGE_SIZE_FALLBACK = 9;
 
 export default function Home() {
   const [events, setEvents] = useState([]);
+  const [page, setPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [count, setCount] = useState(0);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_FALLBACK);
+  const [pagination, setPagination] = useState({ next: null, previous: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
@@ -18,25 +24,67 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // debounce search
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    let mounted = true;
+
     const loadEvents = async () => {
       try {
-        const params = {};
-        if (search) params.search = search;
+        setLoading(true);
+        setError(null);
+
+        const params = { page };
+        if (debouncedSearch) params.search = debouncedSearch;
         if (typeFilter !== "All") params.event_type = typeFilter.toLowerCase();
 
         const res = await api.get("events/", { params });
-        setEvents(res.data.results ?? res.data);
+        if (!mounted) return;
+
+        const data = res.data;
+        const isPaginated =
+          !Array.isArray(data) && Array.isArray(data?.results);
+        const rows = isPaginated
+          ? data.results
+          : Array.isArray(data)
+            ? data
+            : [];
+
+        setEvents(rows);
+        setCount(typeof data?.count === "number" ? data.count : rows.length);
+
+        if (isPaginated) {
+          setPagination({
+            next: data.next ?? null,
+            previous: data.previous ?? null,
+          });
+          if (page === 1 && rows.length > 0) {
+            setPageSize(rows.length);
+          }
+        } else {
+          setPagination({ next: null, previous: null });
+          if (rows.length > 0) {
+            setPageSize(rows.length);
+          }
+        }
       } catch {
+        if (!mounted) return;
         setError("Couldn't load events. Try refreshing.");
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
-    // debounce search
-    const timer = setTimeout(loadEvents, 300);
-    return () => clearTimeout(timer);
-  }, [search, typeFilter]);
+    loadEvents();
+    return () => {
+      mounted = false;
+    };
+  }, [page, debouncedSearch, typeFilter]);
 
   // client-side time filter (swap for backend param when ready)
   const filtered = events.filter((e) => {
@@ -56,6 +104,10 @@ export default function Home() {
     }
     return true;
   });
+
+  const totalPages = Math.max(1, Math.ceil(count / Math.max(1, pageSize)));
+  const hasPrev = Boolean(pagination.previous);
+  const hasNext = Boolean(pagination.next);
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -77,7 +129,10 @@ export default function Home() {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             placeholder="Search events, topics, or organizers"
             className="w-full h-10 pl-9 pr-4 text-sm border border-gray-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/10"
           />
@@ -89,7 +144,10 @@ export default function Home() {
         {FILTERS.map((f) => (
           <button
             key={f}
-            onClick={() => setTypeFilter(f)}
+            onClick={() => {
+              setTypeFilter(f);
+              setPage(1);
+            }}
             className={`text-xs font-medium px-4 py-1.5 rounded-full border transition-colors ${
               typeFilter === f
                 ? "bg-black text-white border-black"
@@ -105,7 +163,10 @@ export default function Home() {
         {TIME_FILTERS.map((f) => (
           <button
             key={f}
-            onClick={() => setTimeFilter(f)}
+            onClick={() => {
+              setTimeFilter(f);
+              setPage(1);
+            }}
             className={`text-xs font-medium px-4 py-1.5 rounded-full border transition-colors ${
               timeFilter === f
                 ? "bg-black text-white border-black"
@@ -176,6 +237,25 @@ export default function Home() {
           ))}
         </div>
       )}
+      <div className="flex items-center justify-center gap-3 mt-8">
+        <button
+          disabled={!hasPrev || loading}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          className="text-sm font-medium px-4 h-9 rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Previous
+        </button>
+        <span className="text-sm text-gray-500">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          disabled={!hasNext || loading}
+          onClick={() => setPage((p) => p + 1)}
+          className="text-sm font-medium px-4 h-9 rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
