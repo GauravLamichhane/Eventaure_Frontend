@@ -10,6 +10,7 @@ import EventDetailPage from "./pages/EventDetailPage";
 import MainLayout from "./layouts/MainLayout"; // ← add
 import PageTitleManager from "./components/PageTitleManager";
 import EditEvent from "./pages/EditEvent";
+import EventRegistrations from "./pages/EventRegistrations";
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EditEvent />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/registrations/"
+            element={
+              <ProtectedRoute>
+                <EventRegistrations />
               </ProtectedRoute>
             }
           />
